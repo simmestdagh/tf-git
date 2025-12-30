@@ -15,4 +15,3 @@ export TF_VAR_git_repo="$GIT_REPO"
 
 # Pass through all arguments to terraform-real
 exec terraform-real "$@"
-

@@ -18,11 +18,17 @@ if [ ! -f "$BIN_DIR/terraform-real" ]; then
   cp "$REAL_TF" "$BIN_DIR/terraform-real"
 fi
 
-# Install wrapper
+# Install terraform wrapper
 curl -fsSL "https://raw.githubusercontent.com/simmestdagh/tf-git/main/terraform" \
   -o "$BIN_DIR/terraform"
 
 chmod +x "$BIN_DIR/terraform"
+
+# Install tf-git CLI
+curl -fsSL "https://raw.githubusercontent.com/simmestdagh/tf-git/main/tf-git" \
+  -o "$BIN_DIR/tf-git"
+
+chmod +x "$BIN_DIR/tf-git"
 
 echo ""
 echo "tf-git installed successfully"
