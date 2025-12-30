@@ -13,10 +13,12 @@ fi
 
 mkdir -p "$BIN_DIR"
 
-# Backup real terraform once
-if [ ! -f "$BIN_DIR/terraform-real" ]; then
-  cp "$REAL_TF" "$BIN_DIR/terraform-real"
+# Backup/update real terraform
+# Always update to ensure we're using the latest terraform version
+if [ -f "$BIN_DIR/terraform-real" ]; then
+  echo "Updating terraform-real to latest version..."
 fi
+cp "$REAL_TF" "$BIN_DIR/terraform-real"
 
 # Install terraform wrapper
 curl -fsSL "https://raw.githubusercontent.com/simmestdagh/tf-git/main/terraform" \

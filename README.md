@@ -7,7 +7,7 @@ A zero-config Terraform wrapper that automatically injects Git metadata as varia
 ### One-Line Installer (Recommended)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/<org>/tf-git/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/simmestdagh/tf-git/main/install.sh | bash
 ```
 
 **Important:** After installation, make sure `~/.local/bin` is in your PATH. Add this to your `~/.bashrc` or `~/.zshrc`:
@@ -33,7 +33,7 @@ sudo mv /usr/local/bin/terraform /usr/local/bin/terraform-real
 
 ```bash
 # Clone the repository
-git clone https://github.com/<org>/tf-git.git
+git clone https://github.com/simmestdagh/tf-git.git
 cd tf-git
 
 # Install to ~/.local/bin
@@ -50,7 +50,7 @@ export PATH="$HOME/.local/bin:$PATH"
 To remove the wrapper and optionally restore the original terraform:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/<org>/tf-git/main/uninstall.sh | bash
+curl -fsSL https://raw.githubusercontent.com/simmestdagh/tf-git/main/uninstall.sh | bash
 ```
 
 Or run manually:
@@ -103,7 +103,15 @@ The generated file is:
 - ✅ Only created on request
 - ✅ Automatically detected by Terraform (`.auto.tf` files are loaded automatically)
 
-**Provider Detection:** The init command automatically detects your cloud provider (AWS, Azure, or GCP) by scanning existing `.tf` files and generates the appropriate provider configuration.
+**Provider Detection:** The init command automatically detects your cloud provider (AWS, Azure, or GCP) by scanning existing `.tf` files.
+
+**Important:** If a provider block already exists in your codebase, `tf-git init` will:
+- Generate only the variable definitions in `tf-git.auto.tf`
+- Provide instructions and a patch to add `default_tags` to your existing provider block
+
+This prevents duplicate provider configuration errors. You'll need to manually add the `default_tags` block to your existing provider configuration (the command will show you exactly what to add).
+
+**Note on GCP:** GCP uses labels instead of tags, and provider-wide defaults aren't uniform. You may need to add labels per resource or use a module for GCP projects.
 
 ## How It Works
 
@@ -164,8 +172,25 @@ resource "azurerm_resource_group" "rg" {
 }
 ```
 
+## Upgrading Terraform
+
+After upgrading Terraform, re-run the installer to update the `terraform-real` binary:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/simmestdagh/tf-git/main/install.sh | bash
+```
+
+The installer will detect and update the `terraform-real` binary if needed.
+
 ## Requirements
 
 - Git repository
-- Terraform installed (will be renamed to `terraform-real`)
+- Terraform installed (will be copied to `terraform-real` in `~/.local/bin`)
 - Bash shell
+
+## CI/CD Considerations
+
+The wrapper handles common CI scenarios:
+- **Detached HEAD:** Automatically detects branch from CI environment variables (GitHub Actions, GitLab CI, Azure DevOps, etc.)
+- **Shallow clones:** Works with shallow checkouts (ensure `fetch-depth` includes the commit)
+- **No Git repo:** Gracefully falls back to empty strings if not in a Git repository
